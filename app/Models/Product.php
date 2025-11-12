@@ -32,4 +32,16 @@ class Product extends Model
     public function productCategory(){
         return $this->belogsTo(ProductCategory::class);
     }
+
+    public function productImages(){
+        return $this->hasMany(ProductImage::class);
+    }
+
+    public function transactionDetails(){
+        return $this->hasMany(TransactionDetail::class);
+    }
+
+    public function productReviews(){
+        return $this->hasMany(ProductReview::class);
+    }
 }
