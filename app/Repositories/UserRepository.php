@@ -7,6 +7,8 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
+
 
 class UserRepository implements UserRepositoryInterface
 {
@@ -39,6 +41,73 @@ class UserRepository implements UserRepositoryInterface
         );
 
         return $query->paginate($rowsPerPage);
+    }
+
+    public function getById(string $id)
+    {
+        return User::where('id', $id)->first(); 
+    }
+
+    public function create(array $data){
+        DB::beginTransaction();
+
+        try {
+            $user = new User();
+            $user->name = $data['name'];
+            $user->email = $data['email'];
+            $user->password = bcrypt($data['password']);
+            $user->save();
+
+            DB::commit();
+
+            return $user;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw new \Exception($e->getMessage(), (int)$e->getCode());
+        } 
+    }
+    
+    public function update(
+        string $id,
+        array $data
+    ){
+        DB::beginTransaction();
+
+        try {
+            $user = User::find($id);
+            $user->name = $data['name'];
+
+            if(isset($data['password'])){
+                $user->password = bcrypt($data['password']);
+            }
+           
+            $user->save();
+            DB::commit();
+
+            return $user;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw new \Exception($e->getMessage(), (int)$e->getCode());
+        } 
+    }
+
+    public function delete(string $id){
+        DB::beginTransaction();
+
+        try {
+            $user = User::find($id);
+
+            $deletedData = $user->replicate();
+
+            $user->delete();
+
+            DB::commit();
+
+            return $deletedData;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw new \Exception($e->getMessage(), (int)$e->getCode());
+        } 
     }
 
 }
