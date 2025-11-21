@@ -34,6 +34,7 @@ class UserController extends Controller
         }
     }
 
+   
     public function getAllPaginated(Request $request){
         $request = $request->validate([
             'search' => 'nullable|string',
